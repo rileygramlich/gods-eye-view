@@ -13,6 +13,19 @@ of current runtime behavior, see [`docs/CURRENT-STATE.md`](docs/CURRENT-STATE.md
 
 ## [Unreleased]
 
+### Added
+
+- **Alberta Wildfire layer** (keyless). Official Government of Alberta agency
+  fire records — fire number, assessed status, cause, size class, response type
+  — plus surveyed current-season perimeters draped on terrain. It complements
+  the NASA FIRMS layer rather than replacing it: FIRMS reports satellite thermal
+  detections including unassessed ones, while these are the records of the
+  agency fighting the fire, so the two legitimately disagree and both stay
+  available. Alberta's fire season runs roughly March–October, so an empty
+  active-fire feed is treated as a normal quiet season rather than an outage:
+  the layer falls back to the year-to-date service and marks every one of those
+  rows historical so a past fire is never shown as currently burning.
+
 ### Fixed
 
 - Separate optional Google server credentials for Places and Street View from

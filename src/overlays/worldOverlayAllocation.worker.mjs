@@ -27,6 +27,12 @@ import {
 } from '../data/trackedReadout.js';
 import { CCTV_AMBIENT_CARD_MAX } from '../data/cctvLod.js';
 import {
+  ALBERTA_WILDFIRE_OVERLAY_COHORT_LIMIT,
+  ALBERTA_WILDFIRE_OVERLAY_COLLISION_CAPACITY,
+  ALBERTA_WILDFIRE_OVERLAY_SOURCE_ID,
+  createWildfireOverlayEntry,
+} from '../data/albertaWildfire.js';
+import {
   CCTV_OVERLAY_SOURCE_ID,
   createCctvThumbnailOverlayEntry,
   createFrameSlot,
@@ -927,6 +933,58 @@ function buildSubmarineCablesWorkload(count) {
   );
 }
 
+/**
+ * The Alberta wildfire label cohort at full size.
+ *
+ * Measured standalone (the submarine-cable precedent) rather than stacked on
+ * the Phase-5 host: this is a regional layer, so the question a budget has to
+ * answer is what its own cohort costs, not what it adds to a worldwide worst
+ * case it never shares a viewport with. The entry shape is the same static
+ * `ambient-label` the earthquake layer publishes, so the per-candidate ceiling
+ * is the meaningful gate.
+ */
+function buildAlbertaWildfireWorkload(count) {
+  if (count !== ALBERTA_WILDFIRE_OVERLAY_COHORT_LIMIT) {
+    throw new Error(`alberta-wildfire requires ${ALBERTA_WILDFIRE_OVERLAY_COHORT_LIMIT} entries`);
+  }
+  const workload = { entries: [], positions: [], drifts: [], registrations: [] };
+  const columns = Math.max(1, Math.ceil(Math.sqrt((count * 16) / 9)));
+  const rows = Math.max(1, Math.ceil(count / columns));
+  const spanX = columns > 1 ? 1.68 / (columns - 1) : 0;
+  const spanY = rows > 1 ? 1.56 / (rows - 1) : 0;
+  const fires = [];
+  for (let index = 0; index < count; index++) {
+    const column = index % columns;
+    const row = Math.floor(index / columns);
+    const baseX = -0.84 + column * spanX;
+    const baseY = -0.78 + row * spanY;
+    const position = new Cesium.Cartesian3(baseX, baseY, 0);
+    workload.positions.push(position);
+    workload.drifts.push({
+      baseX, baseY, phase: index * 0.27, rate: 0.32 + (index % 6) * 0.04,
+    });
+    const entry = createWildfireOverlayEntry({
+      id: `ab-fire-${index}`,
+      position,
+      title: `GWF-${String(index).padStart(3, '0')}-2026`,
+      accent: index % 3 === 0 ? '#ff3b1f' : index % 3 === 1 ? '#ff9d2e' : '#ffd43b',
+      statusRank: index % 4,
+      areaHa: (index % 50) * 120,
+    });
+    entry.horizonCull = false;
+    fires.push(entry);
+  }
+  workload.registrations.push({
+    sourceId: ALBERTA_WILDFIRE_OVERLAY_SOURCE_ID,
+    entries: fires,
+    options: {
+      cohortLimit: ALBERTA_WILDFIRE_OVERLAY_COHORT_LIMIT,
+      collisionCapacity: ALBERTA_WILDFIRE_OVERLAY_COLLISION_CAPACITY,
+    },
+  });
+  return workload;
+}
+
 function buildPhase6DetectionWorkload(count) {
   const random = makeRandom(0xd37ec710);
   const positions = [];
@@ -1026,7 +1084,9 @@ function main() {
                             ? buildPhase5RocketMissionWorkload(ENTRY_COUNT)
                             : PROFILE === 'all-live-radio'
                               ? buildAllLiveRadioWorkload(ENTRY_COUNT)
-                              : PROFILE === 'submarine-cables'
+                              : PROFILE === 'alberta-wildfire'
+                                ? buildAlbertaWildfireWorkload(ENTRY_COUNT)
+                                : PROFILE === 'submarine-cables'
                                 ? buildSubmarineCablesWorkload(ENTRY_COUNT)
         : buildWorkload(ENTRY_COUNT);
   const { entries, positions, drifts } = workload;

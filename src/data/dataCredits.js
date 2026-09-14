@@ -67,6 +67,13 @@ export const DATA_CREDITS = [
     html: 'Earthquakes: Data courtesy of the U.S. Geological Survey',
   },
   {
+    key: 'alberta-wildfire',
+    html:
+      'Alberta wildfires &amp; perimeters: Alberta Wildfire (Government of Alberta) — ' +
+      '<a href="https://www.alberta.ca/wildfire-status" target="_blank" rel="noopener">alberta.ca/wildfire-status</a> ' +
+      '· Open Government Licence – Alberta',
+  },
+  {
     key: 'overpass',
     html:
       'Road geometry (traffic): ' +

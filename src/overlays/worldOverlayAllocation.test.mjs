@@ -11,6 +11,7 @@ import { EARTHQUAKE_OVERLAY_COHORT_LIMIT } from '../data/earthquakes.js';
 import { ROCKET_MISSION_AMBIENT_OVERLAY_COHORT_LIMIT } from '../data/rocketLaunches.js';
 import { RADIO_OVERLAY_COHORT_LIMIT } from '../data/radio.js';
 import { CABLE_REFERENCE_LABEL_WINNER_CAP } from '../data/telegeographySubmarineCables.js';
+import { ALBERTA_WILDFIRE_OVERLAY_COHORT_LIMIT } from '../data/albertaWildfire.js';
 import { isCalibratedAllocationRuntime } from '../../scripts/run-unit-tests.mjs';
 
 /**
@@ -38,6 +39,7 @@ import { isCalibratedAllocationRuntime } from '../../scripts/run-unit-tests.mjs'
  *   Phase 3 + FIRMS      |     338 |        338 |     210 |          41220 |       122.0 |      53,600
  *   Phase 3 + vessels    |     451 |        451 |     311 |          67252 |       149.1 |      87,500
  *   Phase 3 + tracked    |     451 |        451 |     310 |          66642 |       147.8 |      86,700
+ *   Alberta wildfires    |      48 |         48 |      32 |           3866 |        80.5 |       5,000
  *   Phase 4 + CCTV       |     492 |        492 | 310/312 |     78742/97696 | 160.0/198.6 |     102,400
  *   rocket missions      |      48 |         48 |      24 |           5195 |       108.2 |       6,000
  *   Phase 5 pre-missions |     591 |        591 |     353 |         127815 |       216.3 |     132,000
@@ -257,6 +259,23 @@ const WORKLOADS = [
     entries: CABLE_REFERENCE_LABEL_WINNER_CAP,
     candidates: CABLE_REFERENCE_LABEL_WINNER_CAP,
     maxBytesPerFrame: 19_000,
+    saturated: true,
+  },
+  {
+    // The Alberta wildfire label cohort on its own. Measured standalone rather
+    // than stacked on the Phase-5 host (the submarine-cable precedent): this is
+    // a regional layer, so what matters is its own cohort cost, not what it
+    // adds to a worldwide worst case it never shares a viewport with.
+    //
+    // Repeated clean-process probes: median 3,866 B/frame, max 3,966, and
+    // 82.6 B/candidate at the ceiling — inside the shared 154 B/candidate
+    // bound, so no per-source exception is taken. The 5,000 frame budget
+    // carries 26.1% headroom over the measured maximum.
+    name: 'with the Alberta wildfire label cohort live',
+    profile: 'alberta-wildfire',
+    entries: ALBERTA_WILDFIRE_OVERLAY_COHORT_LIMIT,
+    candidates: ALBERTA_WILDFIRE_OVERLAY_COHORT_LIMIT,
+    maxBytesPerFrame: 5_000,
     saturated: true,
   },
   {
