@@ -13,6 +13,15 @@ of current runtime behavior, see [`docs/CURRENT-STATE.md`](docs/CURRENT-STATE.md
 
 ## [Unreleased]
 
+### Added
+
+- **Air Quality Health Index layer** (keyless). Live AQHI for all 22 Alberta
+  stations from the ECCC MSC GeoMet OGC API, coloured on the published 1–10+
+  health-risk scale. Stations are restricted to Alberta using ECCC's own
+  administrative-zone field rather than a bounding box, which would otherwise
+  pull six British Columbia stations into an Alberta layer. Readings older than
+  six hours are dropped instead of being shown as current.
+
 ### Fixed
 
 - Separate optional Google server credentials for Places and Street View from

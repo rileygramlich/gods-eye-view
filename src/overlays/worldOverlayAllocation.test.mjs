@@ -11,6 +11,7 @@ import { EARTHQUAKE_OVERLAY_COHORT_LIMIT } from '../data/earthquakes.js';
 import { ROCKET_MISSION_AMBIENT_OVERLAY_COHORT_LIMIT } from '../data/rocketLaunches.js';
 import { RADIO_OVERLAY_COHORT_LIMIT } from '../data/radio.js';
 import { CABLE_REFERENCE_LABEL_WINNER_CAP } from '../data/telegeographySubmarineCables.js';
+import { AQHI_OVERLAY_COHORT_LIMIT } from '../data/albertaAqhi.js';
 import { isCalibratedAllocationRuntime } from '../../scripts/run-unit-tests.mjs';
 
 /**
@@ -38,6 +39,7 @@ import { isCalibratedAllocationRuntime } from '../../scripts/run-unit-tests.mjs'
  *   Phase 3 + FIRMS      |     338 |        338 |     210 |          41220 |       122.0 |      53,600
  *   Phase 3 + vessels    |     451 |        451 |     311 |          67252 |       149.1 |      87,500
  *   Phase 3 + tracked    |     451 |        451 |     310 |          66642 |       147.8 |      86,700
+ *   AQHI stations        |      32 |         32 |      24 |           3028 |        94.6 |       4,000
  *   Phase 4 + CCTV       |     492 |        492 | 310/312 |     78742/97696 | 160.0/198.6 |     102,400
  *   rocket missions      |      48 |         48 |      24 |           5195 |       108.2 |       6,000
  *   Phase 5 pre-missions |     591 |        591 |     353 |         127815 |       216.3 |     132,000
@@ -257,6 +259,23 @@ const WORKLOADS = [
     entries: CABLE_REFERENCE_LABEL_WINNER_CAP,
     candidates: CABLE_REFERENCE_LABEL_WINNER_CAP,
     maxBytesPerFrame: 19_000,
+    saturated: true,
+  },
+  {
+    // The AQHI station cohort on its own. Measured standalone rather than
+    // stacked on the Phase-5 host (the submarine-cable precedent): this is a
+    // regional layer, so what matters is its own cohort cost, not what it adds
+    // to a worldwide worst case it never shares a viewport with.
+    //
+    // Repeated clean-process probes: median 3,028 B/frame, max 3,249, and
+    // 101.5 B/candidate at the ceiling — inside the shared 154 B/candidate
+    // bound, so no per-source exception is taken. The 4,000 frame budget
+    // carries 23.1% headroom over the measured maximum.
+    name: 'with the Alberta AQHI station cohort live',
+    profile: 'alberta-aqhi',
+    entries: AQHI_OVERLAY_COHORT_LIMIT,
+    candidates: AQHI_OVERLAY_COHORT_LIMIT,
+    maxBytesPerFrame: 4_000,
     saturated: true,
   },
   {
